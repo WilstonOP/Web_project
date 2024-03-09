@@ -55,7 +55,7 @@ RealEstate.deleteMany({})
 */
 
 
-app.set('views', __dirname); //app.set('views', path.join(__dirname, 'views')); app.set('views', __dirname)
+app.set('views', __dirname); 
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
@@ -151,14 +151,12 @@ app.get('/real-estate-data', (req, res) => {
 })
 
 
-// Обновим маршрут для получения данных с возможностью поиска
 app.get('/data/:schema', (req, res) => {
   const schema = req.params.schema;
   const searchColumn = req.query.column;
   const searchValue = req.query.value;
   let Model;
 
-  // Determine the model based on the selected schema
   if (schema === 'feedback') {
     Model = Feedback;
   } else if (schema === 'real-estate') {
@@ -169,12 +167,10 @@ app.get('/data/:schema', (req, res) => {
 
   let query = {};
 
-  // If search column and value are provided, add them to the query
   if (searchColumn && searchValue) {
     query[searchColumn] = { $regex: searchValue, $options: 'i' };
   }
 
-  // Find data based on the selected schema and search query
   Model.find(query)
     .then(data => {
       res.json(data);
@@ -189,7 +185,6 @@ function viewData() {
   const selectElement = document.getElementById('schema-select');
   const selectedSchema = selectElement.value;
 
-  // Make a GET request to fetch data from the selected schema
   fetch(`/data/${selectedSchema}`)
     .then(response => response.json())
     .then(data => {
@@ -204,10 +199,9 @@ function viewData() {
         th.textContent = header;
         headerRow.appendChild(th);
       });
-      headerRow.appendChild(document.createElement('th')); // Add an empty header for the delete button
+      headerRow.appendChild(document.createElement('th')); 
       table.appendChild(headerRow);
 
-      // Populate table with data
       data.forEach(row => {
         const dataRow = document.createElement('tr');
         headers.forEach(header => {
@@ -216,7 +210,6 @@ function viewData() {
           dataRow.appendChild(td);
         });
 
-        // Add a button to edit this row
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
         editButton.onclick = function() {
@@ -226,7 +219,6 @@ function viewData() {
         editButtonCell.appendChild(editButton);
         dataRow.appendChild(editButtonCell);
 
-        // Add a button to delete this row
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.onclick = function() {
@@ -247,10 +239,10 @@ function viewData() {
 
 function editRow(id, schema, headers, rowData) {
   const newValue = prompt('Enter new value:');
-  if (newValue === null) return; // If user cancels, do nothing
+  if (newValue === null) return; 
 
   const selectField = prompt('Enter field to update:');
-  if (selectField === null) return; // If user cancels, do nothing
+  if (selectField === null) return; 
 
   const dataToUpdate = {};
   headers.forEach(header => {
@@ -261,7 +253,6 @@ function editRow(id, schema, headers, rowData) {
     }
   });
 
-  // Make a PUT request to update the record in the selected schema
   fetch(`/data/${schema}/${id}`, {
     method: 'PUT',
     headers: {
@@ -271,7 +262,6 @@ function editRow(id, schema, headers, rowData) {
   })
   .then(response => response.json())
   .then(data => {
-    // Refresh the table after updating the record
     viewData();
   })
   .catch(error => {
@@ -285,7 +275,6 @@ app.put('/data/:schema/:id', (req, res) => {
   const newData = req.body;
   let Model;
 
-  // Determine the model based on the selected schema
   if (schema === 'feedback') {
     Model = Feedback;
   } else if (schema === 'real-estate') {
@@ -294,7 +283,6 @@ app.put('/data/:schema/:id', (req, res) => {
     return res.status(400).json({ error: 'Invalid schema' });
   }
 
-  // Update the record with the specified ID in the selected schema
   Model.updateOne({ _id: id }, { $set: newData })
     .then(() => {
       res.json({ message: 'Record updated successfully' });
@@ -306,11 +294,9 @@ app.put('/data/:schema/:id', (req, res) => {
 
 
 function deleteRow(id, schema) {
-  // Make a DELETE request to delete the record from the selected schema
   fetch(`/data/${schema}/${id}`, { method: 'DELETE' })
     .then(response => response.json())
     .then(data => {
-      // Refresh the table after deleting the record
       viewData();
     })
     .catch(error => {
@@ -323,7 +309,6 @@ app.delete('/data/:schema/:id', (req, res) => {
   const id = req.params.id;
   let Model;
 
-  // Determine the model based on the selected schema
   if (schema === 'feedback') {
     Model = Feedback;
   } else if (schema === 'real-estate') {
@@ -332,7 +317,6 @@ app.delete('/data/:schema/:id', (req, res) => {
     return res.status(400).json({ error: 'Invalid schema' });
   }
 
-  // Delete the record with the specified ID from the selected schema
   Model.deleteOne({ _id: id })
     .then(() => {
       res.json({ message: 'Record deleted successfully' });
@@ -348,7 +332,6 @@ app.get('/data/:schema', (req, res) => {
   const searchValue = req.query.value;
   let Model;
 
-  // Determine the model based on the selected schema
   if (schema === 'feedback') {
     Model = Feedback;
   } else if (schema === 'real-estate') {
@@ -359,12 +342,10 @@ app.get('/data/:schema', (req, res) => {
 
   let query = {};
 
-  // If search column and value are provided, add them to the query
   if (searchColumn && searchValue) {
     query[searchColumn] = { $regex: searchValue, $options: 'i' };
   }
 
-  // Find data based on the selected schema and search query
   Model.find(query)
     .then(data => {
       res.json(data);
@@ -380,7 +361,6 @@ app.get('/data/:schema/:id', (req, res) => {
   const id = req.params.id;
   let Model;
 
-  // Determine the model based on the selected schema
   if (schema === 'feedback') {
     Model = Feedback;
   } else if (schema === 'real-estate') {
@@ -389,7 +369,6 @@ app.get('/data/:schema/:id', (req, res) => {
     return res.status(400).json({ error: 'Invalid schema' });
   }
 
-  // Find data based on the selected schema and id
   Model.findById(id)
     .then(data => {
       res.json(data);
@@ -404,14 +383,12 @@ function searchById() {
   const selectElement = document.getElementById('schema-select');
   const selectedSchema = selectElement.value;
 
-  // Make a GET request to fetch data from the selected schema by _id
   fetch(`/data/${selectedSchema}/${idInput}`)
     .then(response => response.json())
     .then(data => {
       const table = document.getElementById('data-table');
       table.innerHTML = '';
 
-      // Create table headers
       const headers = Object.keys(data);
       const headerRow = document.createElement('tr');
       headers.forEach(header => {
@@ -421,7 +398,6 @@ function searchById() {
       });
       table.appendChild(headerRow);
 
-      // Populate table with data
       const dataRow = document.createElement('tr');
       headers.forEach(header => {
         const td = document.createElement('td');
